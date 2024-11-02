@@ -19,6 +19,8 @@ export default async function handler(req, res) {
             user: true,
             comments: true,
             rating: true,
+            tags: true,
+            templates: true,
           },
         });
       } else if (tagId) {
@@ -36,13 +38,14 @@ export default async function handler(req, res) {
             comments: true,
             rating: true,
             tags: true,
+            templates: true,
           },
         });
       } else if (templateid) {
         // Search by Tag ID
         posts = await prisma.post.findMany({
           where: {
-            tags: {
+            templates: {
               some: {
                 id: parseInt(templateid),
               },
@@ -53,6 +56,7 @@ export default async function handler(req, res) {
             comments: true,
             rating: true,
             tags: true,
+            templates: true,
           },
         });
       } else if (title) {
@@ -67,6 +71,7 @@ export default async function handler(req, res) {
             comments: true,
             rating: true,
             tags: true,
+            templates: true,
           },
         });
       } else {
@@ -76,6 +81,8 @@ export default async function handler(req, res) {
             user: true,
             comments: true,
             rating: true,
+            tags: true,
+            templates: true,
           },
         });
       }

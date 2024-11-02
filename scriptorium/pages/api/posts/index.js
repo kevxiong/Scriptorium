@@ -6,8 +6,41 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
+    const token = req.cookies.token;
+    let posts;
+
     try {
-      const posts = await prisma.post.findMany({
+      let userId = null;
+      let isAdmin = false;
+
+      if (token) {
+        try {
+          const decoded = jwt.verify(token, JWT_SECRET);
+          userId = decoded.userId;
+
+          // Fetch the user to check if they are an admin
+          const user = await prisma.user.findUnique({ where: { id: userId } });
+          if (user) isAdmin = user.isAdmin;
+        } catch (error) {
+          console.error("Invalid token:", error);
+        }
+      }
+
+      // Build the `OR` conditions
+      const whereCondition = isAdmin
+        ? {} // Admin sees all posts
+        : userId
+        ? {
+            OR: [
+              { isHidden: false },                 // Public posts
+              { isHidden: true, userId: userId },  // Hidden posts owned by the user
+            ],
+          }
+        : { isHidden: false }; // Only public posts for unauthenticated users
+
+      // Fetch posts based on the constructed `where` condition
+      posts = await prisma.post.findMany({
+        where: whereCondition,
         include: {
           user: true,
           comments: true,
@@ -16,15 +49,13 @@ export default async function handler(req, res) {
           templates: true,
         },
       });
-      
-      console.log("Fetched posts:", posts); // Log the fetched posts for verification
+
+      console.log("Fetched posts:", posts);
       res.status(200).json(posts);
     } catch (error) {
-      console.error('Detailed Error in fetching posts:', error.message, error.stack); // Detailed logging
+      console.error('Detailed Error in fetching posts:', error.message, error.stack);
       res.status(500).json({ error: error.message || 'Failed to fetch posts' });
     }
-
-
   } else if (req.method === 'POST') {
     const token = req.cookies.token;// Extract the JWT from the cookies
     if (!token) {

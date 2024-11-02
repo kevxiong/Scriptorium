@@ -27,6 +27,7 @@ model User {
   comments  Comment[]
   ratings   Rating[]  @relation("UserRatings")   // Opposite relation field for Rating
   reports   Report[]  @relation("UserReports")   // Opposite relation field for Report
+  isAdmin   Boolean  @default(false)
 }
 
 model CodeSnippet {
@@ -45,6 +46,7 @@ model Post {
   rating      Rating[]
   reports     Report[]
   templates   Template[] @relation("PostTemplates")
+  isHidden  Boolean @default(false)
 }
 
 model Template {
