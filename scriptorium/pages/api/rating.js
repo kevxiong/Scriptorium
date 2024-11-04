@@ -1,20 +1,43 @@
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+import { CreateAccessToken, validateAccessToken, validateRefreshToken } from './auth/token';
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const token = req.cookies.token;
+    const accessToken = req.cookies.token;
+    const refreshToken = req.cookies.refreshToken;
 
-    if (!token) {
+    if (!accessToken && !refreshToken) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
+    let userId;
+
     try {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      const { userId } = decoded;
+      const decoded = validateAccessToken(accessToken);
+      userId = decoded.userId;
+    } catch (err) {
+      if (err.name === 'TokenExpiredError' && refreshToken) {
+        try {
+          const decoded = validateRefreshToken(refreshToken);
+          userId = decoded.userId;
+
+          const newAccessToken = CreateAccessToken(userId);
+          res.setHeader('Set-Cookie', cookie.serialize('token', newAccessToken, { httpOnly: true, maxAge: 900 }));
+        } catch (refreshError) {
+          return res.status(403).json({ error: 'Refresh token expired or invalid' });
+        }
+      } else {
+        return res.status(401).json({ error: 'Invalid access token' });
+      }
+    }
+
+
+
+    try {
       const { postId, commentId, upvote, downvote } = req.body;
 
       if ((upvote && downvote) || (!upvote && !downvote)) {
