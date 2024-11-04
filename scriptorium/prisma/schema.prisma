@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   engineType = "binary"
@@ -58,7 +55,9 @@ model Template {
   userId      Int
   user        User      @relation(fields: [userId], references: [id])
   posts       Post[]    @relation("PostTemplates")
-
+  forkedFrom  Int?      // Optional field to store the ID of the template it was forked from
+  originalTemplate Template? @relation("TemplateForks", fields: [forkedFrom], references: [id])
+  forks       Template[] @relation("TemplateForks") // List of templates that are forks of this template
 }
 
 model Comment {
@@ -95,7 +94,6 @@ model Report {
   postId    Int?
   post      Post?     @relation(fields: [postId], references: [id])
 }
-
 
 model Tag {
   id        Int        @id @default(autoincrement())
