@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { email, password, firstName, lastName, phone } = req.body;
+    const { email, password, firstName, lastName, phone, isAdmin } = req.body;
 
     // Validate input
     if (!email || !password || !firstName || !lastName) {
@@ -33,6 +33,7 @@ export default async function handler(req, res) {
           firstName,
           lastName,
           phone,
+          isAdmin,
         },
       });
 
