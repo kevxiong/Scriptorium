@@ -1,58 +1,103 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
+  engineType = "binary"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = "file:dev.db"
+  url      = "file:./dev.db?connection_limit=1&socket_timeout=15000" 
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
   password  String
   firstName String
   lastName  String
-  avatarUrl String?
+  avatar    String?
+  phone     String?
   templates Template[]
-  blogPosts BlogPost[]
+  posts     Post[]
   comments  Comment[]
+  ratings   Rating[]  @relation("UserRatings")   // Opposite relation field for Rating
+  reports   Report[]  @relation("UserReports")   // Opposite relation field for Report
+  isAdmin   Boolean  @default(false)
+}
+
+model CodeSnippet {
+  id   Int    @id @default(autoincrement())
+  code String
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  tags        Tag[]
+  comments    Comment[]
+  rating      Rating[]
+  reports     Report[]
+  templates   Template[] @relation("PostTemplates")
+  isHidden  Boolean @default(false)
 }
 
 model Template {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
-  content     String
+  code        String
   explanation String?
-  tags        String // Store tags as a comma-separated string
+  tags        Tag[]     @relation("TemplateTags") // Tags for template
   userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-}
-
-model BlogPost {
-  id        Int       @id @default(autoincrement())
-  title     String
-  content   String
-  tags      String // Store tags as a comma-separated string
-  userId    Int
-  user      User      @relation(fields: [userId], references: [id])
-  createdAt DateTime  @default(now())
-  comments  Comment[]
+  user        User      @relation(fields: [userId], references: [id])
+  posts       Post[]    @relation("PostTemplates")
+  forkedFrom  Int?      // Optional field to store the ID of the template it was forked from
+  originalTemplate Template? @relation("TemplateForks", fields: [forkedFrom], references: [id])
+  forks       Template[] @relation("TemplateForks") // List of templates that are forks of this template
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   content   String
   postId    Int
+  post      Post      @relation(fields: [postId], references: [id])
   userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  post      BlogPost @relation(fields: [postId], references: [id]) 
-  createdAt DateTime @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+  parentId   Int?
+  rating    Rating[]
+  reports   Report[]  // Opposite relation field for Report
+}
+
+model Rating {
+  id        Int       @id @default(autoincrement())
+  upvote    Boolean
+  downvote  Boolean
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], name: "UserRatings")
+  postId    Int?
+  post      Post?     @relation(fields: [postId], references: [id])
+  commentId Int?
+  comment   Comment?  @relation(fields: [commentId], references: [id])
+}
+
+model Report {
+  id        Int       @id @default(autoincrement())
+  reason    String
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], name: "UserReports")
+  commentId Int?
+  comment   Comment?  @relation(fields: [commentId], references: [id])
+  postId    Int?
+  post      Post?     @relation(fields: [postId], references: [id])
+}
+
+model Tag {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  posts     Post[]
+  templates Template[] @relation("TemplateTags")  // Relation to templates
 }
