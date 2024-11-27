@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
-import fs from 'fs';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
