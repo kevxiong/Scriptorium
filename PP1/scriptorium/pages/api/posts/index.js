@@ -161,6 +161,10 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: 'Post not found.' });
       }
 
+      if (post.isHidden) {
+        return res.status(400).json({ error: 'Post hidden by admin, cannot edit.' });
+      }
+
       if (post.userId !== userId) {
         return res.status(403).json({ error: 'You are not authorized to edit this post.' });
       }

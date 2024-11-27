@@ -109,7 +109,7 @@ const Search: FC = () => {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.header}>All Templates</h1>
+      <h1 style={styles.header}>Single Template</h1>
       <div style={styles.grid}>
         <div key={template.id} style={styles.card}>
           <h2 style={styles.title}>{template.title}</h2>

@@ -1,4 +1,3 @@
-//auth\admin-mod.js
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import { CreateAccessToken, validateAccessToken, validateRefreshToken } from './token';
@@ -26,8 +25,6 @@ export default async function handler(req, res) {
           const decoded = validateRefreshToken(refreshToken);
           userId = decoded.userId;
 
-          const newAccessToken = CreateAccessToken(userId);
-          res.setHeader('Set-Cookie', cookie.serialize('token', newAccessToken, { httpOnly: true, maxAge: 900 }));
         } catch (refreshError) {
           return res.status(403).json({ error: 'Refresh token expired or invalid' });
         }
@@ -37,7 +34,6 @@ export default async function handler(req, res) {
     }
 
     try {
-
       // Fetch the user from the database
       const user = await prisma.user.findUnique({ where: { id: userId } });
 
@@ -48,14 +44,16 @@ export default async function handler(req, res) {
       // Fetch posts with report count
       const posts = await prisma.post.findMany({
         include: {
-          reports: true,
+          reports: true, // Assuming a relation between posts and reports
         },
       });
 
       // Calculate report count for each post
       const postsWithReportCount = posts.map(post => ({
-        ...post,
-        reportCount: post.reports.length,
+        id: post.id,
+        title: post.title,
+        reportCount: post.reports.length, // Calculate report count
+        isHidden: post.isHidden,
       }));
 
       // Sort posts by report count
@@ -66,14 +64,15 @@ export default async function handler(req, res) {
       // Fetch comments with report count
       const comments = await prisma.comment.findMany({
         include: {
-          reports: true,
+          reports: true, // Assuming a relation between comments and reports
         },
       });
 
       // Calculate report count for each comment
       const commentsWithReportCount = comments.map(comment => ({
-        ...comment,
-        reportCount: comment.reports.length,
+        id: comment.id,
+        content: comment.content,
+        reportCount: comment.reports.length, // Calculate report count
       }));
 
       // Sort comments by report count

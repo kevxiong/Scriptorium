@@ -184,7 +184,6 @@ const Search: FC = () => {
       ));
   };
   
-
   
   const handlepostcomment = async (postId: string) => {
     const response = await fetch('/api/comment', {
@@ -192,6 +191,10 @@ const Search: FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ postId, content: newCommentContent}),
       });
+  };
+
+  const handlepostreport = async (postId: string) => {
+    router.push(`/report?postid=${postId}`);
   };
 
   return (
@@ -301,6 +304,19 @@ const Search: FC = () => {
                     Net Votes: {netRating}
                   </span>
                 </div>
+                <button
+                    onClick={() => handlepostreport(post.id)}
+                    style={{
+                      padding: "8px 12px",
+                      background: "#007BFF",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Report Post
+                  </button>
               </div>
             </div>
           );
