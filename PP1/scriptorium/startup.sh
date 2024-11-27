@@ -6,6 +6,8 @@ echo "Installing dependencies..."
 npm install
 npm install bcryptjs
 npm install jsonwebtoken
+npm install typescript --save-dev
+npx tsc
 
 if [ ! -f .env ]; then
   echo ".env file not found."
@@ -17,4 +19,4 @@ npx prisma generate
 npx prisma migrate dev --name "init"
 
 echo "Creating admin user"
-node .createAdmin.js
+node createAdmin.js

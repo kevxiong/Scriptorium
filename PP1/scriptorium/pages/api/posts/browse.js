@@ -1,11 +1,13 @@
 //posts/browse.js
 import { PrismaClient } from '@prisma/client';
+import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
-    const { postid, tagId, templateid, title } = req.query;
+    const { postid, tagId, templateid, title, self } = req.query;
 
     try {
       let posts;
@@ -75,7 +77,42 @@ export default async function handler(req, res) {
             templates: true,
           },
         });
-      } else {
+      } else if (self) {
+        const token = req.cookies.token;
+        let userId = null;
+
+        if (token) {
+          try {
+            const decoded = jwt.verify(token, JWT_SECRET);
+            userId = decoded.userId;
+
+            // Fetch the user to check if they are an admin
+            const user = await prisma.user.findUnique({ where: { id: userId } });
+          } catch (error) {
+            console.error("Invalid token:", error);
+          }
+        }
+
+
+        posts = await prisma.post.findMany({
+          where: {
+            userId: {
+              equals: userId,
+            },
+          },
+          include: {
+            user: true,
+            comments: true,
+            rating: true,
+            tags: true,
+            templates: true,
+          },
+        });
+      } 
+      
+      
+      
+      else {
         // Return all posts if no search criteria is provided
         posts = await prisma.post.findMany({
           include: {

@@ -41,7 +41,7 @@ export default async function handler(req, res) {
 
         const templates = await prisma.template.findMany({
           where: filters,
-          include: { user: true, tags: true },
+          include: { user: true, tags: true, posts: true },
         });
 
         res.status(200).json(templates);
