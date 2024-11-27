@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
       var userId = req.query.userid;
       const user = await prisma.user.findUnique({
-        where: { id: userId },
+        where: { email: userId },
         select: {
           firstName: true,
           lastName: true,
@@ -24,22 +24,22 @@ export default async function handler(req, res) {
   } else if (req.method === 'PUT') {
     try {
       const userId = req.body.userid;
-      const { firstName, lastName, avatar, phoneNumber } = req.body;
-      console.log({ firstName, lastName, avatar, phoneNumber })
+      const { firstName, lastName, avatar, phone } = req.body;
+      console.log({ firstName, lastName, avatar, phone })
       // Update user with new info
       const updatedUser = await prisma.user.update({
-        where: { id: userId },
+        where: { email: userId },
         data: {
           firstName,
           lastName,
           avatar,
-          phoneNumber,
+          phone,
         },
         select: {
           firstName: true,
           lastName: true,
           avatar: true,
-          phoneNumber: true,
+          phone: true,
         },
       });
 
