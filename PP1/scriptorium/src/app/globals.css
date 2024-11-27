@@ -14,10 +14,70 @@
   }
 }
 
+/* globals.css */
+
+/* Reset default margin and padding for all elements */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Set a base font family and size */
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  /* Center content horizontally and vertically */
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0; /* Example background color */
+  padding: 2rem; /* Added padding */
+}
+
+/* Style form elements */
+input[type='text'],
+input[type='email'],
+input[type='password'],
+button {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem; /* Increased border radius */
+  border: 1px solid #ccc;
+}
+
+/* Style buttons */
+button {
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #0069d9;
+}
+
+/* Style links */
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Add responsive design for smaller screens */
+@media (max-width: 768px) {
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  button {
+    padding: 0.5rem 0.75rem;
+  }
 }
 
 @layer utilities {
@@ -25,3 +85,4 @@ body {
     text-wrap: balance;
   }
 }
+
