@@ -13,6 +13,7 @@ export default async function handler(req, res) {
           firstName: true,
           lastName: true,
           email: true,
+          phone: true,
         },
       });
 
