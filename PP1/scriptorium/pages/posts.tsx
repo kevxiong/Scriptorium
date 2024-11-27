@@ -96,6 +96,7 @@ const Posts: FC = () => {
   const [content, setContent] = useState<string>("");
   const [template, setTemplate] = useState<string>("");
   const router = useRouter();
+  const [email, setEmail] = useState(""); 
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -117,6 +118,18 @@ const Posts: FC = () => {
 
     fetchPosts();
   }, []);
+
+  const handleEmailSubmit = () => {
+    // Basic input validation - you might want to add more robust validation
+    if (email.trim() === "") {
+      alert("Please enter an email address.");
+      return;
+    }
+
+    // Navigate to the profile page with the entered email as userid
+    router.push(`/profile?userid=${encodeURIComponent(email)}`); 
+  };
+
 
   const upvote = async (postId: string): Promise<any> => {
     const response = await fetch('/api/rating', {
@@ -325,6 +338,19 @@ const Posts: FC = () => {
           }}
         >
           View My Posts
+        </button>
+      </div>
+
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter email to view profile"
+          style={styles.searchinput}
+        />
+        <button onClick={handleEmailSubmit} style={styles.searchbutton}>
+          View Profile
         </button>
       </div>
 
