@@ -97,6 +97,9 @@ const mytemps: FC = () => {
     const fetchTemplates = async () => {
       try {
         const response = await fetch("/api/templates/template-browse?self=1");
+        if (response.status == (401)) {
+            throw new Error("login required");
+          }
         if (!response.ok) {
           throw new Error("Failed to fetch templates");
         }
@@ -114,8 +117,21 @@ const mytemps: FC = () => {
     fetchTemplates();
   }, []);
 
-  const handlesaved = (): void => {
-    router.push(`/myposts`);
+  const destroy = async (templateId: number) => {
+    const response = await fetch('/api/templates', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: templateId}),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to submit delete');
+    }
+    return response.json();
+  };
+
+  const edit = (templateid: number): void => {
+    router.push(`/edit-template?templateid=${templateid}`);
   };
 
   const handleSearch = (e: FormEvent<HTMLFormElement>): void => {
@@ -146,10 +162,6 @@ const mytemps: FC = () => {
 
   if (error) {
     return <p>Error: {error}</p>;
-  }
-
-  if (!templates || templates.length === 0) {
-    return <p>No templates found.</p>;
   }
 
   return (
@@ -239,7 +251,34 @@ const mytemps: FC = () => {
                 )}
               </div>
             </div>
+            <button
+                onClick={() => destroy(template.id)}
+                style={{
+                    padding: "8px 12px",
+                    background: "#DC3545",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                }}
+                >
+                Delete Template
+            </button>
+            <button
+                onClick={() => edit(template.id)}
+                style={{
+                    padding: "8px 12px",
+                    background: "#808080",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                }}
+                >
+                Edit Template
+            </button>
           </div>
+          
         ))}
       </div>
     </div>
