@@ -139,53 +139,70 @@ export default async function handler(req, res) {
     }
   }else if (req.method === 'PUT') {
     // Edit a post
-    const token = req.cookies.token;
-    if (!token) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      const { userId } = decoded;
-      const { postId, title, description, tags, templates } = req.body;
-
-      if (!postId || !title || !description) {
-        return res.status(400).json({ error: 'Post ID, title, and description are required.' });
-      }
-
-      const post = await prisma.post.findUnique({ // Verify that the post exists and belongs to the user
-        where: { id: postId },
-      });
-
-      if (!post) {
-        return res.status(404).json({ error: 'Post not found.' });
-      }
-
-      if (post.isHidden) {
-        return res.status(400).json({ error: 'Post hidden by admin, cannot edit.' });
-      }
-
-      if (post.userId !== userId) {
-        return res.status(403).json({ error: 'You are not authorized to edit this post.' });
-      }
-
-      const updatedPost = await prisma.post.update({
-        where: { id: postId },
-        data: {
-          title,
-          description,
-          userId, // Use the userId from the JWT
-          tags,
-          templates,
-        },
-      });
-
-      res.status(200).json(updatedPost);
-    } catch (error) {
-      console.error("Error updating post:", error.message, error.stack);
-      res.status(500).json({ error: error.message || "Failed to update post" });
-    }
-
+        // Authentication check
+        const token = req.cookies.token;
+        if (!token) {
+          return res.status(401).json({ error: 'Authentication required' });
+        }
+    
+        try {
+          const decoded = jwt.verify(token, JWT_SECRET);
+          const { userId } = decoded;
+          const { postId, title, description, tags, templates } = req.body;
+    
+          if (!postId || !title || !description) {
+            return res.status(400).json({ error: 'Post ID, title, and description are required.' });
+          }
+    
+          // Check if the post exists
+          const post = await prisma.post.findUnique({
+            where: { id: postId },
+          });
+    
+          if (!post) {
+            return res.status(404).json({ error: 'Post not found.' });
+          }
+    
+          if (post.isHidden) {
+            return res.status(400).json({ error: 'Post hidden by admin, cannot edit.' });
+          }
+    
+          if (post.userId !== userId) {
+            return res.status(403).json({ error: 'You are not authorized to edit this post.' });
+          }
+    
+          // Build the data object for updating
+          const data = {
+            title,
+            description,
+            userId, // Ensure the post remains associated with the correct user
+          };
+    
+          // Connect tags if provided
+          if (tags && tags.length > 0) {
+            data.tags = {
+              connect: tags.map((tagId) => ({ id: tagId })),
+            };
+          }
+    
+          // Connect templates if provided
+          if (templates && templates.length > 0) {
+            data.templates = {
+              connect: templates.map((templateId) => ({ id: templateId })),
+            };
+          }
+    
+          // Update the post in the database
+          const updatedPost = await prisma.post.update({
+            where: { id: postId },
+            data,
+          });
+    
+          res.status(200).json(updatedPost);
+        } catch (error) {
+          console.error('Error updating post:', error.message, error.stack);
+          res.status(500).json({ error: error.message || 'Failed to update post' });
+        }
   } else {
     res.setHeader('Allow', ['GET', 'POST', 'DELETE', 'PUT']);
     res.status(405).end(`Method ${req.method} Not Allowed`);

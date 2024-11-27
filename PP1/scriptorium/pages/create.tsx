@@ -1,18 +1,73 @@
-import { useState } from "react";
 import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+
+interface Template {
+  id: number;
+  title: string;
+}
+
+interface Tag {
+  id: number;
+  name: string;
+}
 
 const CreatePost = () => {
   const router = useRouter();
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [selectedTemplateIds, setSelectedTemplateIds] = useState<number[]>([]); // Array for multiple templates
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]); // Array for multiple tags
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const templatesResponse = await fetch(`/api/templates`);
+        const tagsResponse = await fetch(`/api/tags`);
+
+        if (!templatesResponse.ok || !tagsResponse.ok) {
+          throw new Error("Failed to fetch templates or tags");
+        }
+
+        const templatesData: Template[] = await templatesResponse.json();
+        const tagsData: Tag[] = await tagsResponse.json();
+
+        setTemplates(templatesData);
+        setTags(tagsData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleTemplateSelection = (templateId: number) => {
+    setSelectedTemplateIds((prev) =>
+      prev.includes(templateId) ? prev.filter((id) => id !== templateId) : [...prev, templateId]
+    );
+  };
+
+  const handleTagSelection = (tagId: number) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
+    );
+  };
 
   const handleCreatePost = async () => {
     if (!title.trim() || !description.trim()) {
       alert("Title and description cannot be empty!");
       return;
     }
+
 
     setLoading(true);
     setError("");
@@ -24,6 +79,8 @@ const CreatePost = () => {
         body: JSON.stringify({
           title,
           description,
+          templates: selectedTemplateIds, // Array of template IDs
+          tags: selectedTagIds, // Array of tag IDs
         }),
       });
 
@@ -32,9 +89,8 @@ const CreatePost = () => {
         throw new Error(errorData.message || "Failed to create post");
       }
 
-      // Redirect to posts page or show success message
       alert("Post created successfully!");
-      router.push("/"); // Adjust the redirection as needed
+      router.push("/posts"); // Adjust the redirection as needed
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       console.error("Error creating post:", err);
@@ -45,6 +101,76 @@ const CreatePost = () => {
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+      <h2>Available Templates</h2>
+      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+        <thead>
+          <tr>
+            <th style={{ border: "1px solid #ddd", padding: "10px", textAlign: "left" }}>ID</th>
+            <th style={{ border: "1px solid #ddd", padding: "10px", textAlign: "left" }}>Title</th>
+            <th style={{ border: "1px solid #ddd", padding: "10px", textAlign: "left" }}>Select</th>
+          </tr>
+        </thead>
+        <tbody>
+          {templates.length > 0 ? (
+            templates.map((template) => (
+              <tr key={template.id}>
+                <td style={{ border: "1px solid #ddd", padding: "10px" }}>{template.id}</td>
+                <td style={{ border: "1px solid #ddd", padding: "10px" }}>{template.title}</td>
+                <td style={{ border: "1px solid #ddd", padding: "10px" }}>
+                  <input
+                    type="checkbox"
+                    value={template.id}
+                    onChange={() => handleTemplateSelection(template.id)}
+                    checked={selectedTemplateIds.includes(template.id)}
+                  />
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={3} style={{ border: "1px solid #ddd", padding: "10px", textAlign: "center" }}>
+                No templates available
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+
+      <h2>Available Tags</h2>
+      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+        <thead>
+          <tr>
+            <th style={{ border: "1px solid #ddd", padding: "10px", textAlign: "left" }}>ID</th>
+            <th style={{ border: "1px solid #ddd", padding: "10px", textAlign: "left" }}>Name</th>
+            <th style={{ border: "1px solid #ddd", padding: "10px", textAlign: "left" }}>Select</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tags.length > 0 ? (
+            tags.map((tag) => (
+              <tr key={tag.id}>
+                <td style={{ border: "1px solid #ddd", padding: "10px" }}>{tag.id}</td>
+                <td style={{ border: "1px solid #ddd", padding: "10px" }}>{tag.name}</td>
+                <td style={{ border: "1px solid #ddd", padding: "10px" }}>
+                  <input
+                    type="checkbox"
+                    value={tag.id}
+                    onChange={() => handleTagSelection(tag.id)}
+                    checked={selectedTagIds.includes(tag.id)}
+                  />
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={3} style={{ border: "1px solid #ddd", padding: "10px", textAlign: "center" }}>
+                No tags available
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+
       <h1>Create New Blog Post</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <div style={{ marginBottom: "20px" }}>
