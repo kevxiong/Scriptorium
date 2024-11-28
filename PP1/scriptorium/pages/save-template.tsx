@@ -15,15 +15,9 @@ interface Tag {
 
 const edittemp = () => {
   const router = useRouter();
-  const { templateid } = router.query;
-  const templateId = templateid ? parseInt(templateid as string, 10) : null;
+  const { code, titleog, exog} = router.query;
   const [title, setTitle] = useState<string>("");
   const [explanation, setExplanation] = useState<string>("");
-  const [code, setCode] = useState<string>("");
-
-  const [lasttitle, lastsetTitle] = useState<string>("");
-  const [lastexplanation, lastsetExplanation] = useState<string>("");
-  const [lastcode, lastsetCode] = useState<string>("");
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,22 +36,12 @@ const edittemp = () => {
         }
         const tagsData: Tag[] = await tagsResponse.json();
         setTags(tagsData);
-
-        const prevtemplate = await fetch(`/api/templates/${templateId}`);
-        if (!prevtemplate.ok) {
-          throw new Error("Failed to fetch templates or tags");
-        }
-        const templatedata: Template = await prevtemplate.json();
-        lastsetTitle(templatedata.title);
-        lastsetExplanation(templatedata.explanation);
-        lastsetCode(templatedata.code);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
@@ -68,22 +52,19 @@ const edittemp = () => {
     );
   };
 
-  const handleCreatePost = async () => {
+  const handleCreateTemp = async () => {
     if (!title.trim() || !explanation.trim()) {
       alert("Title and description cannot be empty!");
       return;
     }
-
-
     setLoading(true);
     setError("");
 
     try {
       const response = await fetch("/api/templates", {
-        method: "PUT",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          templateId,
           title,
           explanation,
           code, // Array of template IDs
@@ -93,14 +74,17 @@ const edittemp = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to edit post");
+        throw new Error(errorData.message || "Failed to create template");
+      }
+      if (titleog || exog) {
+        alert("Forked sucessfully as new template");
       }
 
-      alert("Post edited successfully!");
+      alert("Template created successfully!");
       router.push("/posts"); // Adjust the redirection as needed
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
-      console.error("Error creating post:", err);
+      console.error("Error creating template:", err);
     } finally {
       setLoading(false);
     }
@@ -144,7 +128,7 @@ const edittemp = () => {
         </tbody>
       </table>
 
-      <h1>Edit Template ID:{templateId}</h1>
+      <h1>To save as a new Template, add a title and explanation </h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <div style={{ marginBottom: "20px" }}>
         <label htmlFor="title" style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}>
@@ -155,7 +139,11 @@ const edittemp = () => {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder={lasttitle}
+          placeholder={
+            Array.isArray(titleog)
+              ? titleog.join(", ") // Convert string array to a comma-separated string
+              : titleog // If it's already a string or undefined, use it as is
+          }
           style={{
             width: "100%",
             padding: "10px",
@@ -176,29 +164,11 @@ const edittemp = () => {
           id="explanation"
           value={explanation}
           onChange={(e) => setExplanation(e.target.value)}
-          placeholder={lastexplanation}
-          style={{
-            width: "100%",
-            height: "150px",
-            padding: "10px",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-            marginBottom: "20px",
-          }}
-        />
-      </div>
-      <div style={{ marginBottom: "20px" }}>
-        <label
-          htmlFor="code"
-          style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}
-        >
-          code
-        </label>
-        <textarea
-          id="code"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder={lastcode}
+          placeholder={
+            Array.isArray(exog)
+              ? exog.join(", ") // Convert string array to a comma-separated string
+              : exog // If it's already a string or undefined, use it as is
+          }
           style={{
             width: "100%",
             height: "150px",
@@ -210,7 +180,7 @@ const edittemp = () => {
         />
       </div>
       <button
-        onClick={handleCreatePost}
+        onClick={handleCreateTemp}
         style={{
           padding: "10px 15px",
           backgroundColor: "#007BFF",
@@ -222,7 +192,7 @@ const edittemp = () => {
         }}
         disabled={loading}
       >
-        {loading ? "editing..." : "Edit Template"}
+        {loading ? "editing..." : "Create Template"}
       </button>
     </div>
   );

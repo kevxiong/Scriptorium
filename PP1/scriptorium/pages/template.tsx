@@ -254,6 +254,19 @@ const Temps: FC = () => {
                   <p>No posts available</p>
                 )}
               </div>
+              <button
+                        onClick={() => router.push(`/single-template?templateid=${template.id}`)}
+                        style={{
+                        background: "transparent",
+                        border: "none",
+                        color: "#007BFF",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                        }}
+                    >
+                        View Template
+                </button>
+              
             </div>
           </div>
         ))}

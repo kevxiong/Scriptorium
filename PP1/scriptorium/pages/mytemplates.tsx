@@ -134,9 +134,9 @@ const mytemps: FC = () => {
     router.push(`/edit-template?templateid=${templateid}`);
   };
 
-  const handleSearch = (e: FormEvent<HTMLFormElement>): void => {
+  const handleSearch = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    
+  
     const query: { [key: string]: string } = {};
     if (title.trim()) query.title = title.trim();
     if (tag.trim()) query.tagId = tag.trim();
@@ -152,8 +152,22 @@ const mytemps: FC = () => {
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
       .join("&");
   
-    router.push(`/search?${queryString}`);
+    try {
+      const response = await fetch(`/api/templates/template-browse?${queryString}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch filtered templates");
+      }
+      const filteredTemplates: Template[] = await response.json();
+      setTemplate(filteredTemplates); // Update the templates state with filtered data
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      }
+      console.error("Error filtering templates:", err);
+    }
   };
+  
 
 
   if (loading) {
@@ -277,6 +291,18 @@ const mytemps: FC = () => {
                 >
                 Edit Template
             </button>
+            <button
+                        onClick={() => router.push(`/single-template?templateid=${template.id}`)}
+                        style={{
+                        background: "transparent",
+                        border: "none",
+                        color: "#007BFF",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                        }}
+                    >
+                        View Template
+                    </button>
           </div>
           
         ))}
