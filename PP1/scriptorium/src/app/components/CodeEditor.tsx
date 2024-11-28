@@ -14,11 +14,39 @@ export default function CodeEditor({ language, code, setCode }: CodeEditorProps)
     setCode(value || ""); // Update the code state when the user types
   };
 
+  // Helper function to map the language to Monaco Editor's supported languages
+  function mapLanguage(lang: string): string {
+    switch (lang.toLowerCase()) {
+      case 'python':
+        return 'python';
+      case 'javascript':
+        return 'javascript';
+      case 'java':
+        return 'java';
+      case 'c':
+        return 'c';
+      case 'cpp':
+        return 'cpp';
+      case 'ruby':
+        return 'ruby';
+      case 'go':
+        return 'go';
+      case 'php':
+        return 'php';
+      case 'csharp':
+        return 'csharp';
+      case 'swift':
+        return 'swift';
+      default:
+        return 'plaintext';
+    }
+  }
+
   return (
     <div style={{ height: "400px", border: "1px solid #ccc" }}>
       <Editor
         height="100%"
-        language={language} // Dynamically update the language
+        language={mapLanguage(language)} // Use the helper function to map the language
         value={code}
         onChange={handleEditorChange}
         theme="vs-dark" // Use dark theme for better visibility
