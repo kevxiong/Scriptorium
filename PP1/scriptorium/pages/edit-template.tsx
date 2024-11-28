@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 interface Template {
   id: number;
   title: string;
+  explanation: string;
+  code: string;
 }
 
 interface Tag {
@@ -11,13 +13,20 @@ interface Tag {
   name: string;
 }
 
-const CreatePost = () => {
+const edittemp = () => {
   const router = useRouter();
+  const { templateid } = router.query;
+  const templateId = templateid ? parseInt(templateid as string, 10) : null;
   const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
+  const [explanation, setExplanation] = useState<string>("");
+  const [code, setCode] = useState<string>("");
+
+  const [lasttitle, lastsetTitle] = useState<string>("");
+  const [lastexplanation, lastsetExplanation] = useState<string>("");
+  const [lastcode, lastsetCode] = useState<string>("");
+
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [templates, setTemplates] = useState<Template[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedTemplateIds, setSelectedTemplateIds] = useState<number[]>([]); // Array for multiple templates
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]); // Array for multiple tags
@@ -26,20 +35,22 @@ const CreatePost = () => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
-
       try {
-        const templatesResponse = await fetch(`/api/templates`);
         const tagsResponse = await fetch(`/api/tags`);
-
-        if (!templatesResponse.ok || !tagsResponse.ok) {
+        if (!tagsResponse.ok) {
           throw new Error("Failed to fetch templates or tags");
         }
-
-        const templatesData: Template[] = await templatesResponse.json();
         const tagsData: Tag[] = await tagsResponse.json();
-
-        setTemplates(templatesData);
         setTags(tagsData);
+
+        const prevtemplate = await fetch(`/api/templates/${templateId}`);
+        if (!prevtemplate.ok) {
+          throw new Error("Failed to fetch templates or tags");
+        }
+        const templatedata: Template = await prevtemplate.json();
+        lastsetTitle(templatedata.title);
+        lastsetExplanation(templatedata.explanation);
+        lastsetCode(templatedata.code);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
@@ -50,11 +61,6 @@ const CreatePost = () => {
     fetchData();
   }, []);
 
-  const handleTemplateSelection = (templateId: number) => {
-    setSelectedTemplateIds((prev) =>
-      prev.includes(templateId) ? prev.filter((id) => id !== templateId) : [...prev, templateId]
-    );
-  };
 
   const handleTagSelection = (tagId: number) => {
     setSelectedTagIds((prev) =>
@@ -63,7 +69,7 @@ const CreatePost = () => {
   };
 
   const handleCreatePost = async () => {
-    if (!title.trim() || !description.trim()) {
+    if (!title.trim() || !explanation.trim()) {
       alert("Title and description cannot be empty!");
       return;
     }
@@ -73,23 +79,24 @@ const CreatePost = () => {
     setError("");
 
     try {
-      const response = await fetch("/api/posts", {
-        method: "POST",
+      const response = await fetch("/api/templates", {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: templateId,
           title,
-          description,
-          templates: selectedTemplateIds, // Array of template IDs
+          explanation,
+          code, // Array of template IDs
           tags: selectedTagIds, // Array of tag IDs
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create post");
+        throw new Error(errorData.message || "Failed to edit post");
       }
 
-      alert("Post created successfully!");
+      alert("Post edited successfully!");
       router.push("/posts"); // Adjust the redirection as needed
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -101,40 +108,6 @@ const CreatePost = () => {
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h2>Available Templates</h2>
-      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
-        <thead>
-          <tr>
-            <th style={{ border: "1px solid #ddd", padding: "10px", textAlign: "left" }}>ID</th>
-            <th style={{ border: "1px solid #ddd", padding: "10px", textAlign: "left" }}>Title</th>
-            <th style={{ border: "1px solid #ddd", padding: "10px", textAlign: "left" }}>Select</th>
-          </tr>
-        </thead>
-        <tbody>
-          {templates.length > 0 ? (
-            templates.map((template) => (
-              <tr key={template.id}>
-                <td style={{ border: "1px solid #ddd", padding: "10px" }}>{template.id}</td>
-                <td style={{ border: "1px solid #ddd", padding: "10px" }}>{template.title}</td>
-                <td style={{ border: "1px solid #ddd", padding: "10px" }}>
-                  <input
-                    type="checkbox"
-                    value={template.id}
-                    onChange={() => handleTemplateSelection(template.id)}
-                    checked={selectedTemplateIds.includes(template.id)}
-                  />
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={3} style={{ border: "1px solid #ddd", padding: "10px", textAlign: "center" }}>
-                No templates available
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
 
       <h2>Available Tags</h2>
       <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
@@ -171,7 +144,7 @@ const CreatePost = () => {
         </tbody>
       </table>
 
-      <h1>Create New Blog Post</h1>
+      <h1>Edit Template ID:{templateId}</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <div style={{ marginBottom: "20px" }}>
         <label htmlFor="title" style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}>
@@ -182,7 +155,7 @@ const CreatePost = () => {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter post title"
+          placeholder={lasttitle}
           style={{
             width: "100%",
             padding: "10px",
@@ -194,16 +167,38 @@ const CreatePost = () => {
       </div>
       <div style={{ marginBottom: "20px" }}>
         <label
-          htmlFor="description"
+          htmlFor="explanation"
           style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}
         >
-          Description
+          explanation
         </label>
         <textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Enter post description"
+          id="explanation"
+          value={explanation}
+          onChange={(e) => setExplanation(e.target.value)}
+          placeholder={lastexplanation}
+          style={{
+            width: "100%",
+            height: "150px",
+            padding: "10px",
+            borderRadius: "4px",
+            border: "1px solid #ccc",
+            marginBottom: "20px",
+          }}
+        />
+      </div>
+      <div style={{ marginBottom: "20px" }}>
+        <label
+          htmlFor="code"
+          style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}
+        >
+          code
+        </label>
+        <textarea
+          id="code"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          placeholder={lastcode}
           style={{
             width: "100%",
             height: "150px",
@@ -227,10 +222,10 @@ const CreatePost = () => {
         }}
         disabled={loading}
       >
-        {loading ? "Creating..." : "Create Post"}
+        {loading ? "editing..." : "Edit Template"}
       </button>
     </div>
   );
 };
 
-export default CreatePost;
+export default edittemp;

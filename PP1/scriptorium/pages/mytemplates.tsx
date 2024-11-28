@@ -83,9 +83,9 @@ interface Template {
   forks: Template[]; // Array of forked templates
 }
 
-const Temps: FC = () => {
+const mytemps: FC = () => {
   const router = useRouter();
-  const [templates, setTemplate] = useState<Template[] | null>(null);
+  const [templates, setTemplate] = useState<Template[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [tag, setTag] = useState<string>("");
@@ -96,7 +96,10 @@ const Temps: FC = () => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await fetch("/api/templates");
+        const response = await fetch("/api/templates/template-browse?self=1");
+        if (response.status == (401)) {
+            throw new Error("login required");
+          }
         if (!response.ok) {
           throw new Error("Failed to fetch templates");
         }
@@ -114,8 +117,21 @@ const Temps: FC = () => {
     fetchTemplates();
   }, []);
 
-  const handlesaved = (): void => {
-    router.push(`/mytemplates`);
+  const destroy = async (templateId: number) => {
+    const response = await fetch('/api/templates', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: templateId}),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to submit delete');
+    }
+    return response.json();
+  };
+
+  const edit = (templateid: number): void => {
+    router.push(`/edit-template?templateid=${templateid}`);
   };
 
   const handleSearch = (e: FormEvent<HTMLFormElement>): void => {
@@ -136,7 +152,7 @@ const Temps: FC = () => {
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
       .join("&");
   
-    router.push(`/searchtemplates?${queryString}`);
+    router.push(`/search?${queryString}`);
   };
 
 
@@ -148,13 +164,9 @@ const Temps: FC = () => {
     return <p>Error: {error}</p>;
   }
 
-  if (!templates || templates.length === 0) {
-    return <p>No templates found.</p>;
-  }
-
   return (
     <div style={styles.container}>
-      <h1 style={styles.header}>All Templates</h1>
+      <h1 style={styles.header}>My saved Templates</h1>
       <form onSubmit={handleSearch} style={{ marginBottom: "20px", textAlign: "center" }}>
         <label htmlFor="searchTitle" style={{ fontSize: "1rem", marginRight: "10px" }}>
           Title:
@@ -211,22 +223,6 @@ const Temps: FC = () => {
         />
         <button type="submit"> Search </button>
       </form>
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <button
-          onClick={handlesaved}
-          style={{
-            padding: "10px 15px",
-            backgroundColor: "#28a745",
-            color: "#fff",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-            fontSize: "1rem",
-          }}
-        >
-          View My Saved Templates
-        </button>
-      </div>
       <div style={styles.grid}>
         {templates.map((template) => (
           <div key={template.id} style={styles.card}>
@@ -255,11 +251,38 @@ const Temps: FC = () => {
                 )}
               </div>
             </div>
+            <button
+                onClick={() => destroy(template.id)}
+                style={{
+                    padding: "8px 12px",
+                    background: "#DC3545",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                }}
+                >
+                Delete Template
+            </button>
+            <button
+                onClick={() => edit(template.id)}
+                style={{
+                    padding: "8px 12px",
+                    background: "#808080",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                }}
+                >
+                Edit Template
+            </button>
           </div>
+          
         ))}
       </div>
     </div>
   );
 };
 
-export default Temps;
+export default mytemps;
