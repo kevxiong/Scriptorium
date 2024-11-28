@@ -252,6 +252,72 @@ const Posts: FC = () => {
           Search
         </button>
       </form>
+      <form
+        onSubmit={handleSearch}
+        style={{ marginBottom: "20px", textAlign: "center" }}
+      >
+        <label
+          htmlFor="searchTag"
+          style={{ fontSize: "1rem", marginRight: "10px" }}
+        >
+          Tag:
+        </label>
+        <input
+          id="searchTag"
+          type="text"
+          value={tag}
+          onChange={(e) => setTag(e.target.value)}
+          placeholder="Search by title"
+          style={styles.searchinput}
+        />
+        <button type="submit" style={styles.searchbutton}>
+          Search
+        </button>
+      </form>
+      <form
+        onSubmit={handleSearch}
+        style={{ marginBottom: "20px", textAlign: "center" }}
+      >
+        <label
+          htmlFor="searchTemplate"
+          style={{ fontSize: "1rem", marginRight: "10px" }}
+        >
+          Template:
+        </label>
+        <input
+          id="searchTemplate"
+          type="text"
+          value={template}
+          onChange={(e) => setTemplate(e.target.value)}
+          placeholder="Search by title"
+          style={styles.searchinput}
+        />
+        <button type="submit" style={styles.searchbutton}>
+          Search
+        </button>
+      </form>
+      <form
+        onSubmit={handleSearch}
+        style={{ marginBottom: "20px", textAlign: "center" }}
+      >
+        <label
+          htmlFor="searchContent"
+          style={{ fontSize: "1rem", marginRight: "10px" }}
+        >
+          Content:
+        </label>
+        <input
+          id="searchContent"
+          type="text"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Search by title"
+          style={styles.searchinput}
+        />
+        <button type="submit" style={styles.searchbutton}>
+          Search
+        </button>
+      </form>
 
       {/* Other search forms (Tags, Content, Template) can be added here similarly */}
 
