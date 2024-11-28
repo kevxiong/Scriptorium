@@ -155,6 +155,20 @@ const Temps: FC = () => {
   return (
     <div style={styles.container}>
       <h1 style={styles.header}>All Templates</h1>
+      <button
+          onClick={ () => router.push(`/posts`) }
+          style={{
+            padding: "10px 15px",
+            backgroundColor: "#28a745",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            fontSize: "1rem",
+          }}
+        >
+          Home
+        </button>
       <form onSubmit={handleSearch} style={{ marginBottom: "20px", textAlign: "center" }}>
         <label htmlFor="searchTitle" style={{ fontSize: "1rem", marginRight: "10px" }}>
           Title:
@@ -254,6 +268,19 @@ const Temps: FC = () => {
                   <p>No posts available</p>
                 )}
               </div>
+              <button
+                        onClick={() => router.push(`/single-template?templateid=${template.id}`)}
+                        style={{
+                        background: "transparent",
+                        border: "none",
+                        color: "#007BFF",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                        }}
+                    >
+                        View Template
+                </button>
+              
             </div>
           </div>
         ))}

@@ -167,6 +167,20 @@ const Posts: FC = () => {
 
   return (
     <div style={styles.container}>
+      <button
+          onClick={ () => router.push(`/posts`) }
+          style={{
+            padding: "10px 15px",
+            backgroundColor: "#28a745",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            fontSize: "1rem",
+          }}
+        >
+          Home
+        </button>
       <h1 style={styles.header}>Posts Sort by rating</h1>
 
       <div style={styles.grid}>

@@ -89,7 +89,7 @@ const Search: FC = () => {
       try {
         const query: { [key: string]: string } = {};
         if (title) query.title = title.toString().trim();
-        if (tagId) query.tag = tagId.toString().trim();
+        if (tagId) query.tagId = tagId.toString().trim();
         if (content) query.content = content.toString().trim();
         if (templateid) query.template = templateid.toString().trim();
         if (Object.keys(query).length === 0) {

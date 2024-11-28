@@ -103,6 +103,10 @@ const Search: FC = () => {
     }
   }, [templateid]);
 
+  const edit = (templateid: number) => {
+    router.push(`/checkout-template?templateid=${templateid}`);
+  };
+
   if(!template){
     return <p> template not found</p>;
   }
@@ -112,8 +116,22 @@ const Search: FC = () => {
       <h1 style={styles.header}>Single Template</h1>
       <div style={styles.grid}>
         <div key={template.id} style={styles.card}>
+        <button
+                onClick={() => edit(template.id)}
+                style={{
+                    padding: "8px 12px",
+                    background: "#808080",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                }}
+                >
+                Execute / modify / save this template
+          </button>
           <h2 style={styles.title}>{template.title}</h2>
           <p style={styles.description}>{template.explanation}</p>
+          <p style={styles.description}>{template.code}</p>
           <div>
             <div>
               <strong>Tags:</strong>{" "}
@@ -136,6 +154,7 @@ const Search: FC = () => {
               )}
             </div>
           </div>
+          
         </div>
       </div>
     </div>

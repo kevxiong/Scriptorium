@@ -65,10 +65,10 @@ export default async function handler(req, res) {
       try {
         const tagRelations = tags
           ? await Promise.all(
-              tags.map(async (tagName) => {
-                let tag = await prisma.tag.findUnique({ where: { name: tagName } });
+              tags.map(async (tagid) => {
+                let tag = await prisma.tag.findUnique({ where: { id: tagid } });
                 if (!tag) {
-                  tag = await prisma.tag.create({ data: { name: tagName } });
+                  res.status(500).json({ error: 'Failed to save template' });
                 }
                 return { id: tag.id };
               })
