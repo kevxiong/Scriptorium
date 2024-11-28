@@ -20,3 +20,8 @@ npx prisma migrate dev --name "init"
 
 echo "Creating admin user"
 node createAdmin.js
+
+echo "Building Docker image..."
+docker build -t my-app:latest .
+
+echo "Running Docker container..."
