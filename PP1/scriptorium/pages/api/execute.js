@@ -11,42 +11,71 @@ const execAsync = util.promisify(exec);
 export default async function handler(req, res) {
   const { code, language, input } = req.body;
 
+  console.log('Received request with the following data:');
+  console.log('Language:', language);
+  console.log('Code:', code);
+  console.log('Input:', input);
+
   if (!code) {
+    console.error('No code provided in the request.');
     return res.status(400).json({ error: 'Code is required' });
   }
 
   // Create a unique temporary directory
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'code-'));
+  console.log('Temporary directory created at:', tempDir);
+
   const fileExtension = getFileExtension(language);
+  console.log('File extension determined to be:', fileExtension);
+
   const filePath = path.join(tempDir, `Main.${fileExtension}`);
+  console.log('Code file path set to:', filePath);
 
   try {
     // Write the code to a file
     fs.writeFileSync(filePath, code);
+    console.log('Code written to file successfully.');
 
     // Handle input if provided
     if (input) {
-      fs.writeFileSync(path.join(tempDir, 'input.txt'), input);
+      const inputFilePath = path.join(tempDir, 'input.txt');
+      fs.writeFileSync(inputFilePath, input);
+      console.log('Input written to file at:', inputFilePath);
     }
 
     // Build the Docker command
     const dockerCommand = getDockerCommand(language, tempDir, filePath, input);
+    console.log('Constructed Docker command:');
+    console.log(dockerCommand);
 
     // Execute the Docker command with a timeout
+    console.log('Executing Docker command...');
     const { stdout, stderr } = await execAsync(dockerCommand, { timeout: 5000 });
+    console.log('Docker command executed successfully.');
+    console.log('Standard Output:', stdout);
+    console.log('Standard Error:', stderr);
 
     res.status(200).json({
       output: stdout.trim(),
       error: stderr.trim() || null,
     });
   } catch (err) {
+    console.error('An error occurred during code execution:');
+    console.error(err);
+
     res.status(500).json({
       error: 'Execution error',
       details: err.stderr || err.message,
     });
   } finally {
     // Clean up the temporary directory
-    fs.rmSync(tempDir, { recursive: true, force: true });
+    try {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+      console.log('Temporary directory cleaned up.');
+    } catch (cleanupErr) {
+      console.error('Error during cleanup:');
+      console.error(cleanupErr);
+    }
   }
 }
 
@@ -80,7 +109,6 @@ function getFileExtension(language) {
 
 // Helper function to build the Docker command
 function getDockerCommand(language, dirName, filePath, input) {
-  const path = require('path');
   const fileName = path.basename(filePath);
   const resourceLimits = '--network none --cpus=".5" --memory="256m"';
   const inputCommand = input ? '< input.txt' : '';
@@ -121,4 +149,3 @@ function getDockerCommand(language, dirName, filePath, input) {
       throw new Error('Unsupported language');
   }
 }
-
