@@ -229,6 +229,22 @@ const Posts: FC = () => {
   return (
     <div style={styles.container}>
       <h1 style={styles.header}>All Posts</h1>
+      <div style={{ textAlign: "right", marginBottom: "20px" }}>
+        <button
+          onClick={ () => router.push(`/page`) }
+          style={{
+            padding: "10px 15px",
+            backgroundColor: "#28a745",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            fontSize: "1rem",
+          }}
+        >
+          Login/Signup
+        </button>
+      </div>
 
       <form
         onSubmit={handleSearch}

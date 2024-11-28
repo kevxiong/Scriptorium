@@ -49,6 +49,20 @@ export default function CodeExecution() {
 
   return (
     <div className="container mx-auto p-6">
+      <button
+          onClick={ () => router.push(`/posts`) }
+          style={{
+            padding: "10px 15px",
+            backgroundColor: "#28a745",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            fontSize: "1rem",
+          }}
+        >
+          Home
+        </button>
       <h1 className="text-3xl font-bold mb-4">Code Execution</h1>
 
       <div className="mb-4">
