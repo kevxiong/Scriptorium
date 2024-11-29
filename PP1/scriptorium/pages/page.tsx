@@ -38,6 +38,7 @@ export default function Auth() {
       if (response.ok) {
         setModalMessage(data.message);
         setModalType("success");
+        router.push(`/posts`);
       } else {
         setModalMessage(data.error);
         setModalType("error");
@@ -59,6 +60,20 @@ export default function Auth() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+      <button
+          onClick={ () => router.push(`/posts`) }
+          style={{
+            padding: "10px 15px",
+            backgroundColor: "#28a745",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            fontSize: "1rem",
+          }}
+        >
+          home
+        </button>
         <h1 className="text-3xl font-bold mb-6 text-center">
           {isLogin ? 'Login' : 'Signup'}
         </h1>
@@ -121,21 +136,6 @@ export default function Auth() {
           >
             {isLogin ? 'Login' : 'Signup'}
           </button>
-
-          {isLogin && (
-            <button
-              onClick={() => router.push(`/posts`)}
-              style={{
-                background: "transparent",
-                border: "none",
-                color: "#007BFF",
-                textDecoration: "underline",
-                cursor: "pointer",
-              }}
-            >
-              proceed to app
-            </button>
-          )}
 
           <button
             onClick={() => setIsLogin(!isLogin)}
