@@ -1,3 +1,4 @@
+//used gpt
 import { useRouter } from "next/router";
 import { useEffect, useState, FC } from "react";
 
