@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { CSSProperties } from "react";
 
 interface OutputDisplayProps {
   output: string;
@@ -8,20 +8,20 @@ interface OutputDisplayProps {
 }
 
 export default function OutputDisplay({ output, error }: OutputDisplayProps) {
-  // Styles
+  // Styles with explicit type casting to CSSProperties
   const styles = {
     container: {
       marginTop: "1.5rem", // Equivalent to Tailwind's mt-6
       display: "flex",
       flexDirection: "column",
       gap: "1rem", // Space between output and error sections
-    },
+    } as CSSProperties,
     label: {
       display: "block",
       fontSize: "0.875rem", // Equivalent to text-sm
       fontWeight: 500, // Medium font weight
       color: "#374151", // Equivalent to text-gray-700
-    },
+    } as CSSProperties,
     pre: {
       marginTop: "0.25rem", // Equivalent to mt-1
       padding: "1rem", // Equivalent to p-4
@@ -34,10 +34,10 @@ export default function OutputDisplay({ output, error }: OutputDisplayProps) {
       lineHeight: "1.5", // For better readability
       fontFamily: "monospace", // Use a monospace font for code-like output
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Subtle shadow for modern look
-    },
+    } as CSSProperties,
     errorLabel: {
       color: "#dc2626", // Equivalent to text-red-600
-    },
+    } as CSSProperties,
     errorPre: {
       marginTop: "0.25rem", // Equivalent to mt-1
       padding: "1rem", // Equivalent to p-4
@@ -50,7 +50,7 @@ export default function OutputDisplay({ output, error }: OutputDisplayProps) {
       lineHeight: "1.5", // For better readability
       fontFamily: "monospace", // Use a monospace font for code-like error output
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Subtle shadow for modern look
-    },
+    } as CSSProperties,
   };
 
   return (

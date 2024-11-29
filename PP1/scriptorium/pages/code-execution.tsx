@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, CSSProperties } from "react";
 import CodeEditor from "../src/app/components/CodeEditor";
 import StandardInput from "../src/app/components/StandardInput";
 import ExecuteButton from "../src/app/components/ExecuteButton";
@@ -47,7 +47,7 @@ export default function CodeExecution() {
   };
 
   // Styles
-  const styles = {
+  const styles: Record<string, CSSProperties> = {
     container: {
       maxWidth: "800px",
       margin: "0 auto",
@@ -65,6 +65,12 @@ export default function CodeExecution() {
       color: "#333",
       textAlign: "center",
       marginBottom: "1rem",
+    },
+    controlRow: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: "10px", // Ensures spacing between the dropdown and button
     },
     label: {
       fontSize: "1rem",
@@ -94,17 +100,6 @@ export default function CodeExecution() {
       textAlign: "center",
       transition: "background-color 0.3s ease",
     },
-    buttonGreen: {
-      padding: "10px 20px",
-      backgroundColor: "#28a745",
-      color: "#fff",
-      border: "none",
-      borderRadius: "5px",
-      cursor: "pointer",
-      fontSize: "1rem",
-      textAlign: "center",
-      transition: "background-color 0.3s ease",
-    },
     buttonHover: {
       backgroundColor: "#0056b3",
     },
@@ -115,7 +110,10 @@ export default function CodeExecution() {
       {/* Home Button */}
       <button
         onClick={() => router.push(`/posts`)}
-        style={styles.buttonGreen}
+        style={{
+          ...styles.button,
+          backgroundColor: "#28a745",
+        }}
         onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#218838")}
         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#28a745")}
       >
@@ -125,27 +123,41 @@ export default function CodeExecution() {
       {/* Page Header */}
       <h1 style={styles.header}>Code Execution</h1>
 
-      {/* Language Selector */}
-      <div>
-        <label style={styles.label}>Select Language</label>
-        <select
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          style={styles.select}
-          onFocus={(e) => (e.target.style.borderColor = "#007BFF")}
-          onBlur={(e) => (e.target.style.borderColor = "#ccc")}
+      {/* Language Selector and Save Template Button */}
+      <div style={styles.controlRow}>
+        <div>
+          <label style={styles.label}>Select Language</label>
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            style={styles.select}
+            onFocus={(e) => (e.target.style.borderColor = "#007BFF")}
+            onBlur={(e) => (e.target.style.borderColor = "#ccc")}
+          >
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="java">Java</option>
+            <option value="c">C</option>
+            <option value="cpp">C++</option>
+            <option value="ruby">Ruby</option>
+            <option value="go">Go</option>
+            <option value="php">PHP</option>
+            <option value="csharp">C#</option>
+            <option value="swift">Swift</option>
+          </select>
+        </div>
+        <button
+          onClick={saveastemp}
+          style={styles.button}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#0056b3")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "#007BFF")
+          }
         >
-          <option value="python">Python</option>
-          <option value="javascript">JavaScript</option>
-          <option value="java">Java</option>
-          <option value="c">C</option>
-          <option value="cpp">C++</option>
-          <option value="ruby">Ruby</option>
-          <option value="go">Go</option>
-          <option value="php">PHP</option>
-          <option value="csharp">C#</option>
-          <option value="swift">Swift</option>
-        </select>
+          Save as Template
+        </button>
       </div>
 
       {/* Code Editor */}
@@ -159,16 +171,6 @@ export default function CodeExecution() {
 
       {/* Output Display */}
       <OutputDisplay output={output} error={error} />
-
-      {/* Save as Template Button */}
-      <button
-        onClick={saveastemp}
-        style={styles.button}
-        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
-        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#007BFF")}
-      >
-        Save as Template
-      </button>
     </div>
   );
 }

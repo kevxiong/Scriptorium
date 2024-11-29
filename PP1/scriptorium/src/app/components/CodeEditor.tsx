@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { CSSProperties } from "react";
 import Editor, { OnChange } from "@monaco-editor/react";
 
 interface CodeEditorProps {
@@ -42,7 +42,7 @@ export default function CodeEditor({ language, code, setCode }: CodeEditorProps)
     }
   }
 
-  // Styles
+  // Styles with explicit type casting to CSSProperties
   const styles = {
     container: {
       height: "450px",
@@ -53,7 +53,7 @@ export default function CodeEditor({ language, code, setCode }: CodeEditorProps)
       backgroundColor: "#f9f9f9",
       display: "flex",
       flexDirection: "column",
-    },
+    } as CSSProperties,
     header: {
       display: "flex",
       justifyContent: "space-between",
@@ -63,18 +63,18 @@ export default function CodeEditor({ language, code, setCode }: CodeEditorProps)
       color: "#fff",
       fontWeight: "bold",
       fontSize: "16px",
-    },
+    } as CSSProperties,
     languageTag: {
       backgroundColor: "#0056b3",
       padding: "5px 10px",
       borderRadius: "5px",
       fontSize: "12px",
       color: "#fff",
-    },
+    } as CSSProperties,
     editor: {
       flexGrow: 1,
       backgroundColor: "#1e1e1e",
-    },
+    } as CSSProperties,
   };
 
   return (
