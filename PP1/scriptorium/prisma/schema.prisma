@@ -1,30 +1,27 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
   engineType = "binary"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db?connection_limit=1&socket_timeout=15000" 
+  url      = "file:./dev.db?connection_limit=1&socket_timeout=15000"
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
   password  String
   firstName String
   lastName  String
   avatar    String?
   phone     String?
-  templates Template[]
-  posts     Post[]
+  isAdmin   Boolean    @default(false)
   comments  Comment[]
-  ratings   Rating[]  @relation("UserRatings")   // Opposite relation field for Rating
-  reports   Report[]  @relation("UserReports")   // Opposite relation field for Report
-  isAdmin   Boolean  @default(false)
+  posts     Post[]
+  ratings   Rating[]   @relation("UserRatings")
+  reports   Report[]   @relation("UserReports")
+  templates Template[]
 }
 
 model CodeSnippet {
@@ -33,71 +30,71 @@ model CodeSnippet {
 }
 
 model Post {
-  id          Int       @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   title       String
   description String
   userId      Int
-  user        User      @relation(fields: [userId], references: [id])
-  tags        Tag[]
+  isHidden    Boolean    @default(false)
   comments    Comment[]
+  user        User       @relation(fields: [userId], references: [id])
   rating      Rating[]
   reports     Report[]
   templates   Template[] @relation("PostTemplates")
-  isHidden  Boolean @default(false)
+  tags        Tag[]      @relation("PostToTag")
 }
 
 model Template {
-  id          Int       @id @default(autoincrement())
-  title       String
-  code        String
-  explanation String?
-  tags        Tag[]     @relation("TemplateTags") // Tags for template
-  userId      Int
-  user        User      @relation(fields: [userId], references: [id])
-  posts       Post[]    @relation("PostTemplates")
-  forkedFrom  Int?      // Optional field to store the ID of the template it was forked from
-  originalTemplate Template? @relation("TemplateForks", fields: [forkedFrom], references: [id])
-  forks       Template[] @relation("TemplateForks") // List of templates that are forks of this template
+  id               Int        @id @default(autoincrement())
+  title            String
+  code             String
+  explanation      String?
+  userId           Int
+  forkedFrom       Int?
+  originalTemplate Template?  @relation("TemplateForks", fields: [forkedFrom], references: [id])
+  forks            Template[] @relation("TemplateForks")
+  user             User       @relation(fields: [userId], references: [id])
+  posts            Post[]     @relation("PostTemplates")
+  tags             Tag[]      @relation("TemplateTags")
 }
 
 model Comment {
-  id        Int       @id @default(autoincrement())
-  content   String
-  postId    Int
-  post      Post      @relation(fields: [postId], references: [id])
-  userId    Int
-  user      User      @relation(fields: [userId], references: [id])
-  parentId   Int?
-  rating    Rating[]
-  reports   Report[]  // Opposite relation field for Report
+  id       Int      @id @default(autoincrement())
+  content  String
+  postId   Int
+  userId   Int
+  parentId Int?
+  user     User     @relation(fields: [userId], references: [id])
+  post     Post     @relation(fields: [postId], references: [id])
+  rating   Rating[]
+  reports  Report[]
 }
 
 model Rating {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   upvote    Boolean
   downvote  Boolean
   userId    Int
-  user      User      @relation(fields: [userId], references: [id], name: "UserRatings")
   postId    Int?
-  post      Post?     @relation(fields: [postId], references: [id])
   commentId Int?
-  comment   Comment?  @relation(fields: [commentId], references: [id])
+  comment   Comment? @relation(fields: [commentId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id])
+  user      User     @relation("UserRatings", fields: [userId], references: [id])
 }
 
 model Report {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   reason    String
   userId    Int
-  user      User      @relation(fields: [userId], references: [id], name: "UserReports")
   commentId Int?
-  comment   Comment?  @relation(fields: [commentId], references: [id])
   postId    Int?
-  post      Post?     @relation(fields: [postId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id])
+  comment   Comment? @relation(fields: [commentId], references: [id])
+  user      User     @relation("UserReports", fields: [userId], references: [id])
 }
 
 model Tag {
   id        Int        @id @default(autoincrement())
   name      String     @unique
-  posts     Post[]
-  templates Template[] @relation("TemplateTags")  // Relation to templates
+  posts     Post[]     @relation("PostToTag")
+  templates Template[] @relation("TemplateTags")
 }
