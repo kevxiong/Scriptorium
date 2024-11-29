@@ -7,10 +7,21 @@ interface ExecuteButtonProps {
 
 export default function ExecuteButton({ onClick, loading }: ExecuteButtonProps) {
   return (
+
+    
     <button
       onClick={onClick}
       disabled={loading}
-      className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+      style={{
+        padding: "10px 15px",
+        backgroundColor: "#28a745",
+        color: "#fff",
+        border: "none",
+        borderRadius: "5px",
+        cursor: "pointer",
+        fontSize: "1rem",
+      }}
+      
     >
       {loading ? "Executing..." : "Run Code"}
     </button>

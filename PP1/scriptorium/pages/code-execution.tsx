@@ -46,32 +46,94 @@ export default function CodeExecution() {
     router.push(`/save-template?code=${code}`);
   };
 
-  return (
-    <div className="container mx-auto p-6">
-      <button
-          onClick={ () => router.push(`/posts`) }
-          style={{
-            padding: "10px 15px",
-            backgroundColor: "#28a745",
-            color: "#fff",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-            fontSize: "1rem",
-          }}
-        >
-          Home
-        </button>
-      <h1 className="text-3xl font-bold mb-4">Code Execution</h1>
+  // Styles
+  const styles = {
+    container: {
+      maxWidth: "800px",
+      margin: "0 auto",
+      padding: "20px",
+      backgroundColor: "#f9f9f9",
+      borderRadius: "10px",
+      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+      display: "flex",
+      flexDirection: "column",
+      gap: "20px",
+    },
+    header: {
+      fontSize: "2rem",
+      fontWeight: "bold",
+      color: "#333",
+      textAlign: "center",
+      marginBottom: "1rem",
+    },
+    label: {
+      fontSize: "1rem",
+      fontWeight: "500",
+      color: "#555",
+      marginBottom: "0.5rem",
+    },
+    select: {
+      padding: "10px",
+      fontSize: "1rem",
+      border: "1px solid #ccc",
+      borderRadius: "5px",
+      cursor: "pointer",
+      backgroundColor: "#fff",
+      width: "100%",
+      maxWidth: "200px",
+      transition: "border-color 0.2s ease",
+    },
+    button: {
+      padding: "10px 20px",
+      backgroundColor: "#007BFF",
+      color: "#fff",
+      border: "none",
+      borderRadius: "5px",
+      cursor: "pointer",
+      fontSize: "1rem",
+      textAlign: "center",
+      transition: "background-color 0.3s ease",
+    },
+    buttonGreen: {
+      padding: "10px 20px",
+      backgroundColor: "#28a745",
+      color: "#fff",
+      border: "none",
+      borderRadius: "5px",
+      cursor: "pointer",
+      fontSize: "1rem",
+      textAlign: "center",
+      transition: "background-color 0.3s ease",
+    },
+    buttonHover: {
+      backgroundColor: "#0056b3",
+    },
+  };
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Select Language
-        </label>
+  return (
+    <div style={styles.container}>
+      {/* Home Button */}
+      <button
+        onClick={() => router.push(`/posts`)}
+        style={styles.buttonGreen}
+        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#218838")}
+        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#28a745")}
+      >
+        Home
+      </button>
+
+      {/* Page Header */}
+      <h1 style={styles.header}>Code Execution</h1>
+
+      {/* Language Selector */}
+      <div>
+        <label style={styles.label}>Select Language</label>
         <select
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
-          className="mt-1 block w-40 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          style={styles.select}
+          onFocus={(e) => (e.target.style.borderColor = "#007BFF")}
+          onBlur={(e) => (e.target.style.borderColor = "#ccc")}
         >
           <option value="python">Python</option>
           <option value="javascript">JavaScript</option>
@@ -86,27 +148,27 @@ export default function CodeExecution() {
         </select>
       </div>
 
+      {/* Code Editor */}
       <CodeEditor language={language} code={code} setCode={setCode} />
+
+      {/* Standard Input */}
       <StandardInput input={input} setInput={setInput} />
+
+      {/* Execute Button */}
       <ExecuteButton onClick={handleExecute} loading={loading} />
+
+      {/* Output Display */}
       <OutputDisplay output={output} error={error} />
 
-
+      {/* Save as Template Button */}
       <button
         onClick={saveastemp}
-        style={{
-          padding: "10px 15px",
-          backgroundColor: "#007BFF",
-          color: "#fff",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          fontSize: "1rem",
-        }}
+        style={styles.button}
+        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
+        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#007BFF")}
       >
         Save as Template
       </button>
     </div>
-    
   );
 }
