@@ -25,3 +25,4 @@ echo "Building Docker image..."
 docker build -t my-app:latest .
 
 echo "Running Docker container..."
+docker run -p 3000:3000 my-app:latest
